@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Latest</title>
+</head>
+<body>
+<div th:each="code:${codeList}">
+    <pre id = "code_snippet" th:text="${code.getCode()}"></pre>
+    <br>
+    <span id = "load_date" th:text="${code.getCreateAt()}"></span>
+</div>
+</body>
+</html>
