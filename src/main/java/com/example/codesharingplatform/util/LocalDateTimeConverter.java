@@ -9,7 +9,7 @@ public class LocalDateTimeConverter {
     private LocalDateTimeConverter() { }
 
     public static String convert(LocalDateTime date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+        var formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         return date.format(formatter);
     }
 }

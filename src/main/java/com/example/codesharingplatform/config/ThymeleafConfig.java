@@ -1,4 +1,4 @@
-package com.example.codesharingplatform;
+package com.example.codesharingplatform.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,35 +1,37 @@
 package com.example.codesharingplatform.controller;
 
-import domain.CodeSnippet;
-import com.example.codesharingplatform.repository.CodeSnippets;
+import com.example.codesharingplatform.domain.CodeSnippet;
+import com.example.codesharingplatform.service.CodeFragmentService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RequestMapping("/api/code")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 @RestController
 public class RestCodeSnippetController {
 
-    private final CodeSnippets codeFragments;
-
-    public RestCodeSnippetController(CodeSnippets codeFragments) {
-        this.codeFragments = codeFragments;
-    }
+    CodeFragmentService codeFragmentService;
 
     @GetMapping("/latest")
     public List<CodeSnippet> returnLatestApiFragments() {
-        return codeFragments.getLatest();
+        return codeFragmentService.findLatest10();
     }
 
     @GetMapping("/{id}")
-    public CodeSnippet getFragment(@PathVariable int id) {
-        return codeFragments.getById(id);
+    public CodeSnippet getFragment(@PathVariable Long id) {
+        return codeFragmentService.findSnippetById(id);
     }
 
     @PostMapping("/new")
     public ResponseEntity<String> postApiCodeNew(@RequestBody CodeSnippet codeFragment) {
-        CodeSnippet saved = codeFragments.add(new CodeSnippet(codeFragment.getCode()));
-        return ResponseEntity.ok("{ \"id\" : " + saved.getId()  + " }");
+        var saved = codeFragmentService.save(new CodeSnippet(codeFragment.getCode()));
+        return ResponseEntity.ok("{ \"id\" : \"" + saved.getId() + "\" }");
     }
 }
