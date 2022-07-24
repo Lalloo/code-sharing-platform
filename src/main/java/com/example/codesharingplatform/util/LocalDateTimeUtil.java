@@ -17,13 +17,13 @@ public class LocalDateTimeUtil {
         return date.format(formatter);
     }
 
-    public static LocalDateTime convertToLDTFormat(String date) {
+    public static LocalDateTime convertToTime(String date) {
         val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         return LocalDateTime.parse(date, formatter);
     }
 
     public static long findDifferenceInSeconds(String firstDate, LocalDateTime secondDate) {
-        val first = LocalDateTimeUtil.convertToLDTFormat(firstDate);
+        val first = LocalDateTimeUtil.convertToTime(firstDate);
         return ChronoUnit.SECONDS.between(first, secondDate);
     }
 }

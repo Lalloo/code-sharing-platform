@@ -1,17 +1,17 @@
 package com.example.codesharingplatform.service;
 
 import com.example.codesharingplatform.domain.CodeSnippet;
+import com.example.codesharingplatform.exception.CodeNotFoundException;
 import com.example.codesharingplatform.repository.CodeSnippetRepository;
-import com.example.codesharingplatform.util.LocalDateTimeUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -21,7 +21,22 @@ public class CodeFragmentService {
     CodeSnippetRepository repo;
 
     public CodeSnippet findSnippetByToken(String token) {
-        return repo.findByToken(token).orElseThrow();
+        val snippet = repo.findByToken(token)
+                .orElseThrow();
+
+        if (snippet.isRestrictedByTime() && snippet.isExpired()) {
+            repo.delete(snippet);
+            throw new CodeNotFoundException();
+        }
+        if (snippet.isRestrictedByViews()) {
+            long views = snippet.getViews() - 1;
+            if (views < 0) {
+                repo.delete(snippet);
+                throw new CodeNotFoundException();
+            }
+            snippet.setViews(views);
+        }
+        return repo.save(snippet);
     }
 
     public CodeSnippet save(CodeSnippet toSave) {
@@ -29,38 +44,6 @@ public class CodeFragmentService {
     }
 
     public List<CodeSnippet> findLatest10() {
-        return repo.findTop10ByOrderByIdDesc();
-    }
-
-    public Optional<CodeSnippet> updateTimeAndViews(CodeSnippet codeSnippet) {
-        if (codeSnippet.isRestrictedByTime()) {
-            Optional<CodeSnippet> update = updateTimeOrDelete(codeSnippet);
-            if (update.isPresent() && codeSnippet.isRestrictedByViews()) {
-                return updateViewsOrDelete(codeSnippet);
-            }
-            return update;
-        } else {
-            return Optional.of(codeSnippet);
-        }
-    }
-
-    private Optional<CodeSnippet> updateTimeOrDelete(CodeSnippet codeSnippet) {
-        long time = codeSnippet.getTime() - LocalDateTimeUtil.convertToLDTFormat(codeSnippet.getCreateAt()).getSecond();
-        if (time < 0) {
-            repo.delete(codeSnippet);
-            return Optional.empty();
-        }
-        codeSnippet.setTime(time);
-        return Optional.of(repo.save(codeSnippet));
-    }
-
-    private Optional<CodeSnippet> updateViewsOrDelete(CodeSnippet codeSnippet) {
-        long views = codeSnippet.getViews() - 1;
-        if (views < 0) {
-            repo.delete(codeSnippet);
-            return Optional.empty();
-        }
-        codeSnippet.setViews(views);
-        return Optional.of(repo.save(codeSnippet));
+        return repo.findTop10ByOrderByIdDesc(PageRequest.of(0, 10));
     }
 }

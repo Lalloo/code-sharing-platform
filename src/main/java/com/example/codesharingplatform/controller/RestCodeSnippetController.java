@@ -6,8 +6,6 @@ import com.example.codesharingplatform.controller.dto.SnippetTokenDto;
 import com.example.codesharingplatform.controller.mapper.SnippetRequestMapper;
 import com.example.codesharingplatform.controller.mapper.SnippetResponseMapper;
 import com.example.codesharingplatform.controller.mapper.SnippetTokenMapper;
-import com.example.codesharingplatform.domain.CodeSnippet;
-import com.example.codesharingplatform.exception.CodeNotFoundException;
 import com.example.codesharingplatform.service.CodeFragmentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,14 +35,13 @@ public class RestCodeSnippetController {
 
     @GetMapping("/{token}")
     public ResponseEntity<SnippetResponseDto> getFragment(@PathVariable String token) {
-        var snippetByToken = codeFragmentService.findSnippetByToken(token);
-        snippetByToken = codeFragmentService.updateTimeAndViews(snippetByToken).orElseThrow(CodeNotFoundException::new);
-        return ResponseEntity.ok(snippetResponseMapper.toDto(snippetByToken));
+        val snippet = codeFragmentService.findSnippetByToken(token);
+        return ResponseEntity.ok(snippetResponseMapper.toDto(snippet));
     }
 
     @PostMapping("/new")
-    public ResponseEntity<SnippetTokenDto> postApiCodeNew(@RequestBody SnippetRequestDto codeSnippetRequestDto) {
-        val save = codeFragmentService.save(snippetRequestMapper.toCodeSnippet(codeSnippetRequestDto));
+    public ResponseEntity<SnippetTokenDto> postApiCodeNew(@RequestBody SnippetRequestDto dto) {
+        val save = codeFragmentService.save(snippetRequestMapper.toModel(dto));
         return ResponseEntity.ok(snippetTokenMapper.toDto(save));
     }
 }

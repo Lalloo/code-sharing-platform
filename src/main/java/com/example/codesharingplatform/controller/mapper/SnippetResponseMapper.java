@@ -21,7 +21,7 @@ public class SnippetResponseMapper {
         return SnippetResponseDto.builder()
                 .code(codeSnippet.getCode())
                 .date(codeSnippet.getCreateAt())
-                .time(codeSnippet.getTime())
+                .time(codeSnippet.getTime()) // получить время которое еще может жить снипет
                 .views(codeSnippet.getViews())
                 .build();
     }
