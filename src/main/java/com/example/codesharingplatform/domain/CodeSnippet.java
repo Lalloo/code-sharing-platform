@@ -1,19 +1,20 @@
 package com.example.codesharingplatform.domain;
 
-import com.example.codesharingplatform.util.LocalDateTimeConverter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.codesharingplatform.util.LocalDateTimeUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
-
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
 @Table(name = "CODE_SNIPPETS")
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -22,17 +23,35 @@ public class CodeSnippet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     Long id;
 
-    @Column(name = "code")
+    @Lob
     String code;
 
     @Column(name = "date")
     @JsonProperty("date")
-    LocalDateTime createAt = LocalDateTime.now();
+    String createAt = LocalDateTimeUtil.convertToStringFormat(LocalDateTime.now());
 
-    public CodeSnippet(String code) {
-        this.code = code;
+    long time;
+
+    long views;
+
+    String token = UUID.randomUUID().toString();
+
+    boolean restrictedByViews;
+
+    boolean restrictedByTime;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        CodeSnippet that = (CodeSnippet) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

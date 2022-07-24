@@ -1,10 +1,12 @@
 package com.example.codesharingplatform.controller;
 
-import com.example.codesharingplatform.domain.CodeSnippet;
+import com.example.codesharingplatform.controller.mapper.SnippetResponseMapper;
+import com.example.codesharingplatform.exception.CodeNotFoundException;
 import com.example.codesharingplatform.service.CodeFragmentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class MvcCodeSnippetController {
 
     CodeFragmentService codeFragmentService;
+    SnippetResponseMapper snippetResponseMapper;
 
     @GetMapping("/new")
     public ModelAndView postCode() {
@@ -27,15 +30,16 @@ public class MvcCodeSnippetController {
 
     @GetMapping("/latest")
     public ModelAndView returnLatestHtmlPages(Model model) {
-        model.addAttribute("codeList", codeFragmentService.findLatest10());
+        model.addAttribute("codeList", snippetResponseMapper.allToDto(codeFragmentService.findLatest10()));
         return new ModelAndView("latest");
     }
 
-    @GetMapping("/{id}")
-    public ModelAndView returnLatestHtmlPage(Model model, @PathVariable Long id) {
-        var saved = codeFragmentService.findSnippetById(id);
-        model.addAttribute("code", saved.getCode());
-        model.addAttribute("createAt", saved.getCreateAt());
+    @GetMapping("/{token}")
+    public ModelAndView returnLatestHtmlPage(Model model, @PathVariable String token) {
+        var snippetByToken = codeFragmentService.findSnippetByToken(token);
+        snippetByToken = codeFragmentService.updateTimeAndViews(snippetByToken).orElseThrow(CodeNotFoundException::new);
+        model.addAttribute("code", snippetByToken.getCode());
+        model.addAttribute("createAt", snippetByToken.getCreateAt());
         return new ModelAndView("fragment");
     }
 }
