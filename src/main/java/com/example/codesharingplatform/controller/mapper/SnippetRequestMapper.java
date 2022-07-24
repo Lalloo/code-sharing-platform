@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SnippetRequestMapper {
 
-    public CodeSnippet toCodeSnippet(SnippetRequestDto snippetRequestDto) {
+    public CodeSnippet toModel(SnippetRequestDto snippetRequestDto) {
         val codeSnippet = new CodeSnippet();
         codeSnippet.setCode(snippetRequestDto.getCode());
         codeSnippet.setTime(snippetRequestDto.getTime());

@@ -14,7 +14,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Entity
 @Table(name = "CODE_SNIPPETS")
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -41,6 +40,14 @@ public class CodeSnippet {
     boolean restrictedByViews;
 
     boolean restrictedByTime;
+
+    public long getTime() {
+        return time - (LocalDateTime.now().getSecond() - LocalDateTimeUtil.convertToTime(getCreateAt()).getSecond());
+    }
+
+    public boolean isExpired() {
+        return LocalDateTime.now().getSecond() - LocalDateTimeUtil.convertToTime(getCreateAt()).getSecond() > time;
+    }
 
     @Override
     public boolean equals(Object o) {

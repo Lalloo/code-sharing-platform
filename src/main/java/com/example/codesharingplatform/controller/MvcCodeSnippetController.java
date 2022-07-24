@@ -36,10 +36,8 @@ public class MvcCodeSnippetController {
 
     @GetMapping("/{token}")
     public ModelAndView returnLatestHtmlPage(Model model, @PathVariable String token) {
-        var snippetByToken = codeFragmentService.findSnippetByToken(token);
-        snippetByToken = codeFragmentService.updateTimeAndViews(snippetByToken).orElseThrow(CodeNotFoundException::new);
-        model.addAttribute("code", snippetByToken.getCode());
-        model.addAttribute("createAt", snippetByToken.getCreateAt());
+        val snippet = codeFragmentService.findSnippetByToken(token);
+        model.addAttribute("snippet", snippet);
         return new ModelAndView("fragment");
     }
 }
